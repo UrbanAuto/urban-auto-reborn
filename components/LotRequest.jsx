@@ -20,7 +20,7 @@ const KINDS = {
   },
   order: {
     icon: '🛒', title: 'Замовити цей лот', hint: 'Менеджер перевірить лот, узгодить умови й допоможе зробити ставку на аукціоні.',
-    submit: 'Замовити лот', budget: true, budgetLabel: 'Максимальна ставка, $', budgetReq: true, repair: true, note: true, noteLabel: 'Побажання (необов’язково)', notePh: 'Терміни, комплектація, ремонт…',
+    submit: 'Замовити лот', budget: true, budgetLabel: 'Максимальна ставка, $', budgetReq: true, repair: true, note: false,
     done: 'Замовлення отримано. Менеджер зв’яжеться з вами для підтвердження ставки й договору.',
   },
 };
