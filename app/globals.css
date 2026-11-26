@@ -575,3 +575,5 @@ a.c-card:hover { border-color: rgba(180,72,72,.5); transform: translateY(-4px); 
 .intent-item .intent-form .btn { flex: 0 0 auto; }
 .avatar-img { overflow: hidden; border: 2px solid #fff; box-shadow: 0 4px 12px rgba(27,31,43,.18); flex: none; }
 .avatar-img svg { display: block; }
+
+.seo-text { display: grid; gap: 16px; color: var(--muted); font-size: 16.5px; }

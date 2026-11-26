@@ -7,7 +7,7 @@ import Order from './Order';
 import Calculator from './Calculator';
 import Process from './Process';
 import { Repair, Cases, WhyUs, LiveCars } from './Extras';
-import { Marquee, Stats, SoldTeaser, Auctions, Reviews, Contacts, Footer } from './Sections';
+import { Marquee, Stats, SoldTeaser, SeoText, Auctions, Reviews, Contacts, Footer } from './Sections';
 
 export default function Site() {
   const search = (f) => {
@@ -32,6 +32,7 @@ export default function Site() {
         <Repair />
         <Cases />
         <WhyUs />
+        <SeoText />
         <Auctions />
         <Reviews />
         <Contacts />

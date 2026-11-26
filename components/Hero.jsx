@@ -20,8 +20,8 @@ export default function Hero({ onSearch }) {
       <div className="container hero-in">
         <span className="eyebrow hero-intro">Авто зі США · Канади · Європи</span>
         <h1>
-          <span className="line"><span>Приганяємо авто</span></span>
-          <span className="line"><span>з США та Європи</span></span>
+          <span className="line"><span>Приганяємо авто</span></span>{' '}
+          <span className="line"><span>з США та Європи</span></span>{' '}
           <span className="line"><span className="grad">під ключ</span></span>
         </h1>
         <p className="hero-sub hero-intro">Від аукціону до готового авто в Україні. Ремонт під ключ включено. Ви отримуєте прозорий процес, договір, контроль витрат і машину, яку дійсно хочеться забрати з першого дня.</p>

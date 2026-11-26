@@ -54,6 +54,22 @@ export function Stats() {
   );
 }
 
+export function SeoText() {
+  return (
+    <section className="section" id="about-service" style={{ paddingTop: 0 }}>
+      <div className="container" style={{ maxWidth: 900 }}>
+        <span className="eyebrow" data-reveal>Про послугу</span>
+        <h2 className="h2" data-reveal>Пригін авто зі США та Європи <span className="grad">під ключ у Києві</span></h2>
+        <div className="seo-text" data-reveal>
+          <p>Urban Auto приганяє авто зі США та Європи під ключ: підбираємо лот на аукціонах Copart та IAAI, перевіряємо історію за VIN, визначаємо безпечну ставку, організовуємо доставку й розмитнення, а за потреби відновлюємо авто у власній команді ремонту. Ви отримуєте готовий автомобіль в Україні й допомогу з постановкою на облік.</p>
+          <p>Купити авто з Америки чи з Європи вигідніше, коли всі витрати відомі наперед. Тому ми працюємо за договором, узгоджуємо платежі до їх появи, а орієнтовний бюджет можна порахувати в калькуляторі ще до ставки на аукціоні. Середній термін пригону авто — 65–85 днів залежно від аукціону, порту та маршруту.</p>
+          <p>Працюємо з бензиновими, дизельними та гібридними авто, а також з електромобілями (Tesla, Ford Mustang Mach-E, Nissan Ariya, Volkswagen ID.4 та інші). Офіс у Києві: Кловський узвіз, 7А, телефон {SITE.phoneLabel}.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function Auctions() {
   return (
     <section className="section alt" id="auctions">
