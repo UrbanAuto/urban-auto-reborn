@@ -21,12 +21,15 @@ export default function Calculator() {
   const set = (k) => (v) => setS((p) => ({ ...p, [k]: v }));
   const r = useMemo(() => calculate(s), [s]);
   const ev = s.fuel === 'electric';
+  const mid = Math.round(r.total / 100) * 100;
+  const lo = Math.max(0, mid - 3000);
+  const hi = mid + 3000;
   return (
     <section className="section" id="calc">
       <div className="container">
         <span className="eyebrow" data-reveal>Калькулятор · орієнтовно</span>
         <h2 className="h2" data-reveal>Орієнтовна вартість <span className="grad">пригону авто</span></h2>
-        <p className="lead" data-reveal>Орієнтовний розрахунок розмитнення у 2 кліки: ставка на аукціоні, логістика, мито, акциз та ПДВ. Дає розуміння бюджету ще до ставки.</p>
+        <p className="lead" data-reveal>Орієнтовний розрахунок у 2 кліки: вкажіть параметри авто й отримайте приблизну вилку бюджету ще до ставки на аукціоні.</p>
         <div className="calc-wrap">
           <div className="panel" data-reveal-left style={{ display: 'grid', gap: 26 }}>
             <Range label="Ціна авто на аукціоні" value={s.price} min={2000} max={80000} step={500} onChange={set('price')} fmt={usd} />
@@ -40,10 +43,10 @@ export default function Calculator() {
           <div className="panel result" data-reveal-right>
             <span className="approx">≈ Орієнтовний розрахунок</span>
             <div className="total-label" style={{ marginTop: 14 }}>Орієнтовний бюджет в Україні</div>
-            <div className="total grad">≈ {usd(r.total)}</div>
-            <div className="lines">{r.items.map((i) => <div key={i.k}><span>{i.k}</span><b>≈ {usd(i.v)}</b></div>)}</div>
+            <div className="total grad">{usd(lo)} – {usd(hi)}</div>
+            <p className="note" style={{ margin: '14px 0 26px' }}>Орієнтовна вилка бюджету «під ключ» в Україні (±$3 000). Для точної суми залиште заявку — менеджер порахує під конкретний лот.</p>
             <button className="btn btn-fire" style={{ width: '100%' }} onClick={() => goTo('order')}>Замовити точний розрахунок</button>
-            <p className="note">Розрахунок орієнтовний: у нього не входять ремонт і послуги компанії. Точні суми залежать від лота, порту, курсу та чинних митних ставок.</p>
+            <p className="note">Розрахунок орієнтовний: ремонт і послуги компанії не враховано. Точна сума залежить від лота, порту, курсу та чинних митних ставок.</p>
           </div>
         </div>
       </div>
