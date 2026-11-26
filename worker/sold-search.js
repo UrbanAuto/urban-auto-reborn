@@ -61,7 +61,7 @@ function mapCar(r) {
   };
 }
 
-const LIST_PARAMS = ['platform', 'make', 'model', 'year_from', 'year_to', 'price_min', 'price_max', 'odometer_to', 's', 'sort', 'cursor', 'per_page', 'fuel_type[]', 'damage[]'];
+const LIST_PARAMS = ['platform', 'type', 'make', 'model', 'year_from', 'year_to', 'price_min', 'price_max', 'odometer_to', 's', 'sort', 'cursor', 'per_page', 'fuel_type[]', 'damage[]'];
 const SORTS = ['auction_soonest', 'recently_added'];
 
 async function upstream(env, path, params) {
@@ -96,25 +96,94 @@ export default {
       const params = [['lot_status', 'Open']];
       for (const k of LIST_PARAMS) {
         for (const v of u.searchParams.getAll(k)) {
-          const val = String(v).trim().slice(0, k === 'cursor' ? 600 : 100);
+          const val = String(v).trim().slice(0, k === 'cursor' ? 6000 : 100);
           if (!val) continue;
           if (k === 'sort' && !SORTS.includes(val)) continue;
           if (k === 'platform' && !['copart', 'iaai'].includes(val)) continue;
+          if (k === 'type' && !/^[A-Za-z0-9 ()\/&-]+$/.test(val)) continue;
           if (k === 'per_page') { params.push([k, String(Math.min(40, Math.max(1, parseInt(val, 10) || 20)))]); continue; }
           params.push([k, val]);
         }
       }
       if (!params.some(([k]) => k === 'sort')) params.push(['sort', 'auction_soonest']);
-      params.sort((a, b) => (a[0] + a[1]).localeCompare(b[0] + b[1]));
-      const key = 'list/' + params.map(([k, v]) => `${k}=${v}`).join('&');
-      const r = await cached(request, ctx, key, TTL_LIST, async () => {
-        const res = await upstream(env, '/vehicles', params);
-        if (res.status === 429) return { status: 429, body: JSON.stringify({ error: 'rate_limited', message: 'Ліміт запитів вичерпано, спробуйте пізніше.' }) };
-        if (!res.ok) return { status: 502, body: JSON.stringify({ error: 'upstream', message: 'Сервіс тимчасово недоступний.' }) };
-        const j = await res.json();
-        return { status: 200, body: JSON.stringify({ data: (j.data || []).map(mapCar), meta: { next_cursor: j.meta?.next_cursor ?? null, has_more: !!j.meta?.has_more }, fetchedAt: new Date().toISOString() }) };
+      const has = (k) => params.some(([n]) => n === k);
+      const headers = (hit, stale) => ({ 'Content-Type': 'application/json; charset=utf-8', 'X-Cache': hit ? 'HIT' : stale ? 'STALE' : 'MISS', ...h });
+
+      // Один запит до Apibara (з кешем; при ліміті 429 віддаємо стару копію, якщо вона є)
+      const fetchOne = async (ps) => {
+        const sorted = [...ps].sort((a, b) => (a[0] + a[1]).localeCompare(b[0] + b[1]));
+        const key = 'list/' + sorted.map(([k, v]) => `${k}=${v}`).join('&');
+        const r = await cached(request, ctx, key, TTL_LIST, async () => {
+          const res = await upstream(env, '/vehicles', sorted);
+          if (res.status === 429) return { status: 429, body: JSON.stringify({ error: 'rate_limited', message: 'Ліміт запитів вичерпано, спробуйте пізніше.' }) };
+          if (!res.ok) return { status: 502, body: JSON.stringify({ error: 'upstream', message: 'Сервіс тимчасово недоступний.' }) };
+          const j = await res.json();
+          return { status: 200, body: JSON.stringify({ data: (j.data || []).map(mapCar), meta: { next_cursor: j.meta?.next_cursor ?? null, has_more: !!j.meta?.has_more }, fetchedAt: new Date().toISOString() }) };
+        });
+        return r;
+      };
+
+      // Звичайний режим: є пошук/марка/тип/аукціон — прямий запит
+      const plain = has('platform') || has('type') || has('make') || has('s') || has('cursor') && !String(params.find(([k]) => k === 'cursor')[1]).startsWith('mix:');
+      if (plain) {
+        const r = await fetchOne(params);
+        return new Response(r.body, { status: r.status, headers: headers(r.hit) });
+      }
+
+      // Змішаний режим: різні джерела (Copart / IAAI, авто, мото, човни, сільгосптехніка, вантажівки…), кожне зі своїм курсором
+      const cur = params.find(([k]) => k === 'cursor')?.[1];
+      let state = {};
+      if (cur) { try { state = JSON.parse(atob(cur.slice(4))); } catch { state = {}; } }
+      const base = params.filter(([k]) => k !== 'cursor' && k !== 'per_page');
+      const perPage = parseInt(params.find(([k]) => k === 'per_page')?.[1] || '20', 10);
+      const q = Math.max(2, Math.round(perPage / 4)); // розмір «порції» одного джерела
+      const SOURCES = [
+        ['ca', [['platform', 'copart'], ['type', 'AUTOMOBILE']], q + 2],
+        ['ia', [['platform', 'iaai'], ['type', 'AUTOMOBILE']], q + 2],
+        ['cs', [['platform', 'copart'], ['type', 'SUV']], q - 2 > 1 ? q - 2 : 2],
+        ['is', [['platform', 'iaai'], ['type', 'PICKUP']], q - 2 > 1 ? q - 2 : 2],
+        ['mo', [['type', 'MOTORCYCLE']], 2],
+        ['bo', [['type', 'BOAT']], 2],
+        ['fa', [['type', 'FARM EQUIPMENT']], 1],
+        ['ag', [['type', 'AGRICULTURE AND FARM EQUIPMENT']], 1],
+        ['at', [['type', 'ATV']], 1],
+        ['tr', [['type', 'HEAVY DUTY TRUCKS']], 1],
+      ];
+      const active = SOURCES.filter(([id]) => !cur || state[id] !== null);
+      const results = await Promise.all(active.map(async ([id, extra, n]) => {
+        const ps = [...base, ...extra, ['per_page', String(n)]];
+        if (state[id]) ps.push(['cursor', state[id]]);
+        const r = await fetchOne(ps);
+        if (r.status !== 200) return { id, err: r };
+        const j = JSON.parse(r.body);
+        return { id, rows: j.data, next: j.meta?.next_cursor || null, at: j.fetchedAt, hit: r.hit };
+      }));
+      const ok = results.filter((r) => !r.err);
+      if (!ok.length) { const e = results[0].err; return new Response(e.body, { status: e.status, headers: headers(false) }); }
+      const next = { ...state };
+      for (const r of ok) next[r.id] = r.next; // null = джерело вичерпано
+      const queues = ok.map((r) => [...r.rows].sort((a, b) => (a.country === 'usa' ? 0 : 1) - (b.country === 'usa' ? 0 : 1)));
+      const seen = new Set(); const out = [];
+      // по черзі беремо по одному лоту з кожного джерела → різні типи й аукціони, без «кластерів»
+      for (let i = 0; queues.some((qq) => i < qq.length); i++) for (const qq of queues) { const c = qq[i]; if (c && !seen.has(c.id)) { seen.add(c.id); out.push(c); } }
+      // розводимо однакові марки, що йдуть підряд
+      for (let i = 1; i < out.length; i++) {
+        if (out[i].make !== out[i - 1].make) continue;
+        const j = out.findIndex((c, k) => k > i && c.make !== out[i - 1].make && (out[i + 1] ? c.make !== out[i + 1].make : true));
+        if (j > 0) [out[i], out[j]] = [out[j], out[i]];
+      }
+      const more = Object.values(next).some((v) => v);
+      const body = JSON.stringify({ data: out, meta: { next_cursor: more ? 'mix:' + btoa(JSON.stringify(next)) : null, has_more: more }, fetchedAt: ok[0].at });
+      return new Response(body, { status: 200, headers: headers(ok.every((r) => r.hit)) });
+    }
+
+    // ---- Метадані фільтрів (типи ТЗ тощо), кеш на добу ----
+    if (path === '/filters') {
+      const r = await cached(request, ctx, 'filters', TTL_LOT, async () => {
+        const res = await upstream(env, '/vehicles/filters', []);
+        return { status: res.ok ? 200 : 502, body: await res.text() };
       });
-      return new Response(r.body, { status: r.status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Cache': r.hit ? 'HIT' : 'MISS', ...h } });
+      return new Response(r.body, { status: r.status, headers: { 'Content-Type': 'application/json; charset=utf-8', ...h } });
     }
 
     // ---- Один лот (VIN / номер лота) ----

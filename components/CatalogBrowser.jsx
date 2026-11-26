@@ -12,10 +12,11 @@ const LIVE = !!SOLD_API;           // є сервер → весь катало�
 const PAGE = 20;
 const EU = ['autoscout24', 'mobile.de'];
 const AUCTIONS = [['all', 'Усі аукціони'], ['copart', 'Copart'], ['iaai', 'IAAI'], ['europe', 'Європа']];
+const TYPES = [['', 'Усі типи'], ['AUTOMOBILE', 'Легкові авто'], ['SUV', 'Кросовери / SUV'], ['PICKUP', 'Пікапи'], ['MOTORCYCLE', 'Мотоцикли'], ['ATV', 'Квадроцикли'], ['BOAT', 'Човни та катери'], ['JET SKI', 'Гідроцикли'], ['FARM EQUIPMENT', 'Сільгосптехніка'], ['HEAVY DUTY TRUCKS', 'Вантажівки'], ['BUS', 'Автобуси'], ['RECREATIONAL VEHICLE (RV)', 'Автобудинки'], ['CONSTRUCTION EQUIPMENT', 'Будтехніка']];
 const SORTS = [['soon', 'Найближчі торги'], ['bid-asc', 'Ставка: від меншої'], ['bid-desc', 'Ставка: від більшої'], ['year-desc', 'Рік: новіші'], ['km-asc', 'Пробіг: менший']];
 const LIVE_SORTS = [['soon', 'Найближчі торги'], ['new', 'Нещодавно додані']];
 const YEARS = Array.from({ length: 16 }, (_, i) => new Date().getFullYear() - i);
-const EMPTY = { q: '', make: '', country: 'all', year: '', budget: '', auction: 'all', sort: 'soon' };
+const EMPTY = { q: '', make: '', country: 'all', year: '', budget: '', auction: 'all', sort: 'soon', type: '' };
 
 export default function CatalogBrowser() {
   const local = useCars();
@@ -46,6 +47,7 @@ export default function CatalogBrowser() {
     const split = filters.make ? { make: '', rest: q0 } : splitMakeQuery(q0);
     const make = filters.make || split.make;
     if (make) p.set('make', make.toUpperCase());
+    if (filters.type) p.set('type', filters.type);
     if (filters.year) p.set('year_from', filters.year);
     if (filters.budget) p.set('price_max', filters.budget);
     if (split.rest) p.set('s', split.rest);
@@ -57,12 +59,12 @@ export default function CatalogBrowser() {
       if (id !== reqId.current) return;
       if (!res.ok) throw new Error(j.message || 'Не вдалося завантажити лоти.');
       const rows = j.data.map((c) => ({ ...c, bid: c.bid ?? 0 }));
-      setLive((s) => ({ items: cursor ? [...s.items, ...rows] : rows, cursor: j.meta?.next_cursor || null, more: !!j.meta?.has_more, loading: false, error: null, updated: j.fetchedAt }));
+      setLive((s) => ({ items: cursor ? [...s.items, ...rows.filter((r) => !s.items.some((o) => o.id === r.id))] : rows, cursor: j.meta?.next_cursor || null, more: !!j.meta?.has_more, loading: false, error: null, updated: j.fetchedAt }));
     } catch (e) {
       if (id === reqId.current) setLive((s) => ({ ...s, loading: false, error: e.message }));
     }
   }, []);
-  useEffect(() => { if (LIVE) fetchLive(f, null); }, [f.q, f.make, f.year, f.budget, f.auction, f.sort]); // eslint-disable-line
+  useEffect(() => { if (LIVE) fetchLive(f, null); }, [f.q, f.make, f.year, f.budget, f.auction, f.sort, f.type]); // eslint-disable-line
 
   // ---------- LOCAL: пошук у cars.json ----------
   const all = useMemo(() => {
@@ -105,6 +107,7 @@ export default function CatalogBrowser() {
       </div>
       <div className="filters" data-reveal>
         <select value={f.auction} onChange={(e) => set('auction', e.target.value)} aria-label="Аукціон">{AUCTIONS.filter(([v]) => !LIVE || v !== 'europe').map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
+        {LIVE && <select value={f.type} onChange={(e) => set('type', e.target.value)} aria-label="Тип техніки">{TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>}
         <select value={f.make} onChange={(e) => set('make', e.target.value)} aria-label="Марка"><option value="">Усі марки</option>{MAKES.map((m) => <option key={m}>{m}</option>)}</select>
         <select value={f.year} onChange={(e) => set('year', e.target.value)} aria-label="Рік від"><option value="">Рік від</option>{YEARS.map((y) => <option key={y}>{y}</option>)}</select>
         <input type="number" min="0" step="500" inputMode="numeric" placeholder="Ставка до, $" value={f.budget} onChange={(e) => set('budget', e.target.value)} aria-label="Ставка до" />
