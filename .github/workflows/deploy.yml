@@ -30,6 +30,8 @@ jobs:
         env:
           NEXT_PUBLIC_SOLD_API: ${{ vars.SOLD_API_URL }}
           NEXT_PUBLIC_LEAD_API: ${{ vars.LEAD_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL }}
+          NEXT_PUBLIC_GOOGLE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
       - run: touch out/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -1,2 +1,12 @@
 import Site from '@/components/Site';
-export default function Page() { return <Site />; }
+import { organizationLd, faqLd } from '@/lib/seo';
+
+export default function Page() {
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd()) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd()) }} />
+      <Site />
+    </>
+  );
+}
