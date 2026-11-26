@@ -13,12 +13,12 @@ function Scene({ kind }) {
   switch (kind) {
     case 'car':
       return (
-        <>
+        <g transform="translate(30 12) scale(.62)">
           <path d="M10 68 C10 60 16 57 26 55 L40 40 C46 35 56 33 70 33 L96 33 C106 33 113 39 120 48 L136 54 C142 56 146 61 146 68 L146 76 L10 76 Z" fill="#fff" opacity=".92" />
           <path d="M44 42 L58 36 L80 36 L80 52 L38 52 Z M86 36 L98 36 C104 36 109 41 114 48 L114 52 L86 52 Z" fill="#1b1f2b" opacity=".75" />
           <circle cx="40" cy="76" r="10" fill="#12141b" stroke="#fff" strokeWidth="3" />
           <circle cx="116" cy="76" r="10" fill="#12141b" stroke="#fff" strokeWidth="3" />
-        </>
+        </g>
       );
     case 'mountain':
       return (

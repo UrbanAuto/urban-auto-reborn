@@ -8,9 +8,10 @@ import { managerLink } from '@/lib/contact';
 export default function LotRequestModal({ car, source, onClose }) {
   const [state, setState] = useState('form'); // form | sending | done
   useEffect(() => {
-    const key = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
+    // Esc закриває лише цю форму, а не вікно лота під нею
+    const key = (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); onClose(); } };
+    window.addEventListener('keydown', key, true);
+    return () => window.removeEventListener('keydown', key, true);
   }, [onClose]);
 
   const submit = async (e) => {
