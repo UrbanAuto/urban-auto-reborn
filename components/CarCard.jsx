@@ -35,7 +35,7 @@ export default function CarCard({ c, onOpen }) {
           </div>
         </div>
       </div>
-      {ask && <LotRequestModal car={c} source="Каталог" onClose={() => setAsk(false)} />}
+      {ask && <LotRequestModal car={c} kind="manager" source="Каталог" onClose={() => setAsk(false)} />}
     </article>
   );
 }

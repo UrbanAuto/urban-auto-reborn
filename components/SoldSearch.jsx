@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { searchSold } from '@/lib/sold';
 import LotRequestModal from './LotRequest';
-import { goTo } from '@/lib/scroll';
 import LotModal from './LotModal';
 
 const fmt = (n) => n.toLocaleString('uk-UA');
@@ -14,7 +13,7 @@ export default function SoldSearch({ initial = '' }) {
   const [q, setQ] = useState(initial);
   const [state, setState] = useState({ loading: false, error: null, data: null });
   const [open, setOpen] = useState(false);
-  const [ask, setAsk] = useState(false);
+  const [ask, setAsk] = useState(null);
 
   const run = async (value) => {
     setState({ loading: true, error: null, data: null });
@@ -61,13 +60,13 @@ export default function SoldSearch({ initial = '' }) {
                 .filter(([, v]) => v).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
             </dl>
             <div className="m-actions">
-              <button className="btn btn-fire" onClick={() => goTo('calc')}>Розрахувати «під ключ»</button>
-              <button className="btn" onClick={() => setAsk(true)}>Запитати менеджера</button>
+              <button className="btn btn-fire" onClick={() => setAsk('calc')}>Розрахувати «під ключ»</button>
+              <button className="btn" onClick={() => setAsk('manager')}>Запитати менеджера</button>
             </div>
           </div>
         </article>
       )}
-      {ask && car && <LotRequestModal car={car} source="Продані лоти" onClose={() => setAsk(false)} />}
+      {ask && car && <LotRequestModal car={car} kind={ask} source="Продані лоти" onClose={() => setAsk(null)} />}
       {open && car && <LotModal car={car} priceLabel={d.salePrice != null ? 'Ціна продажу' : 'Остання ставка'} onClose={() => setOpen(false)} />}
     </div>
   );

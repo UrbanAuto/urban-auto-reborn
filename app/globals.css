@@ -579,3 +579,26 @@ a.c-card:hover { border-color: rgba(180,72,72,.5); transform: translateY(-4px); 
 .seo-text { display: grid; gap: 16px; color: var(--muted); font-size: 16.5px; }
 
 @media (min-width: 1101px) { .contact-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* Запит по лоту: вікно з шапкою, фоном і чіткими полями */
+.ask-modal { z-index: 400; background: rgba(12,14,20,.78); backdrop-filter: blur(12px); }
+.ask-box { position: relative; width: min(480px, 100%); max-height: calc(100svh - 32px); overflow: auto; border-radius: 26px; background: #fff; color: var(--text); box-shadow: 0 40px 90px -30px rgba(0,0,0,.7); animation: mrise .4s cubic-bezier(.2,.8,.2,1); }
+.ask-head { position: relative; display: flex; align-items: center; gap: 14px; padding: 22px 60px 22px 22px; color: #fff; background: radial-gradient(circle at 100% 0%, rgba(217,91,91,.55), transparent 55%), linear-gradient(135deg, #1b1f2b, #353845); }
+.ask-logo { width: 44px; height: 44px; border-radius: 50%; background: #fff; flex: none; }
+.ask-kind { display: block; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #ffb9b9; }
+.ask-car { display: block; margin-top: 3px; font-family: var(--font-display); font-size: 18px; line-height: 1.25; color: #fff; }
+.ask-x { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.12); color: #fff; cursor: pointer; }
+.ask-x:hover { background: var(--red); }
+.ask-body { padding: 22px; background: linear-gradient(180deg, #f3f4f7, #fff 40%); }
+.ask-form { display: grid; gap: 14px; }
+.ask-hint { color: #2a2e3a; font-size: 15px; font-weight: 500; }
+.ask-form label { display: grid; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #3d4252; }
+.ask-form input, .ask-form textarea { font-size: 16px; color: var(--text); background: #fff; border: 1.5px solid rgba(82,88,105,.35); border-radius: 14px; padding: 13px 15px; outline: 0; text-transform: none; letter-spacing: 0; font-weight: 500; transition: border-color .3s, box-shadow .3s; }
+.ask-form input::placeholder, .ask-form textarea::placeholder { color: #7d8393; }
+.ask-form input:focus, .ask-form textarea:focus { border-color: var(--red); box-shadow: 0 0 0 4px rgba(180,72,72,.16); }
+.ask-form textarea { resize: vertical; min-height: 84px; }
+.ask-form label.check { display: flex; align-items: center; gap: 10px; text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 600; color: var(--text); padding: 12px 14px; border: 1.5px solid rgba(82,88,105,.35); border-radius: 14px; background: #fff; cursor: pointer; }
+.ask-form label.check input { width: 20px; height: 20px; padding: 0; accent-color: var(--red); }
+.ask-fine { color: #5a5f6e; font-size: 12px; line-height: 1.4; }
+.ask-done { display: flex; gap: 12px; align-items: flex-start; font-weight: 600; font-size: 16px; color: #1f5f3d; padding: 14px 16px; border-radius: 14px; background: rgba(46,160,100,.12); border: 1px solid rgba(46,160,100,.4); margin-bottom: 14px; }
+.ask-done i { font-style: normal; font-weight: 800; }
