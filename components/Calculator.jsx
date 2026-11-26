@@ -21,9 +21,8 @@ export default function Calculator() {
   const set = (k) => (v) => setS((p) => ({ ...p, [k]: v }));
   const r = useMemo(() => calculate(s), [s]);
   const ev = s.fuel === 'electric';
-  const mid = Math.round(r.total / 100) * 100;
-  const lo = Math.max(0, mid - 3000);
-  const hi = mid + 3000;
+  const lo = Math.round(r.total);
+  const hi = lo + 3000;
   return (
     <section className="section" id="calc">
       <div className="container">
@@ -44,7 +43,7 @@ export default function Calculator() {
             <span className="approx">≈ Орієнтовний розрахунок</span>
             <div className="total-label" style={{ marginTop: 14 }}>Орієнтовний бюджет в Україні</div>
             <div className="total grad">{usd(lo)} – {usd(hi)}</div>
-            <p className="note" style={{ margin: '14px 0 26px' }}>Орієнтовна вилка бюджету «під ключ» в Україні (±$3 000). Для точної суми залиште заявку — менеджер порахує під конкретний лот.</p>
+            <div style={{ height: 26 }} />
             <button className="btn btn-fire" style={{ width: '100%' }} onClick={() => goTo('order')}>Замовити точний розрахунок</button>
             <p className="note">Розрахунок орієнтовний: ремонт і послуги компанії не враховано. Точна сума залежить від лота, порту, курсу та чинних митних ставок.</p>
           </div>
