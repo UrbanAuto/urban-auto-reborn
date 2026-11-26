@@ -1,0 +1,4 @@
+{
+  "DEMV0000000000001": { "vin": "DEMV0000000000001", "lot": "10000001", "platform": "copart", "title": "2019 TOYOTA RAV4 XLE (демо)", "year": 2019, "make": "Toyota", "model": "RAV4", "status": "Sold", "confirmed": true, "salePrice": 8200, "lastBid": 8200, "soldDate": "2026-10-14", "auctionDate": "2026-10-14T16:00:00+00:00", "location": "Houston (TX)", "damage": "Передня частина", "km": 74000, "images": [] },
+  "DEMV0000000000002": { "vin": "DEMV0000000000002", "lot": "10000002", "platform": "iaai", "title": "2020 BMW X5 XDRIVE40I (демо)", "year": 2020, "make": "BMW", "model": "X5", "status": "Not Sold", "confirmed": true, "salePrice": null, "lastBid": 14300, "soldDate": null, "auctionDate": "2026-10-20T16:00:00+00:00", "location": "Miami (FL)", "damage": "Бічна частина", "km": 52000, "images": [] }
+}

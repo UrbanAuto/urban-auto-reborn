@@ -1,0 +1,6 @@
+name = "urban-auto-sold-search"
+main = "sold-search.js"
+compatibility_date = "2024-11-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://urbanauto.github.io"
