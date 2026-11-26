@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { botLink } from '@/lib/contact';
 import { SERVICES, BEFORE_AFTER, CASES, CASE_FILTERS, USP } from '@/lib/data';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -87,6 +88,51 @@ export function WhyUs() {
         <div className="usp-grid" data-stagger>
           {USP.map((u) => <div className="usp" key={u.title}><i>{u.icon}</i><h3>{u.title}</h3><p>{u.text}</p></div>)}
         </div>
+      </div>
+    </section>
+  );
+}
+
+export function LiveCars() {
+  const pin = (x, y, label, sub, href, cls) => (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={`pin ${cls}`}>
+      <circle cx={x} cy={y} r="22" className="pin-pulse" />
+      <circle cx={x} cy={y} r="11" className="pin-dot" />
+      <text x={x} y={y - 34} textAnchor="middle" className="pin-label">{label}</text>
+      <text x={x} y={y + 40} textAnchor="middle" className="pin-sub">{sub}</text>
+    </a>
+  );
+  return (
+    <section className="section" id="live">
+      <div className="container">
+        <span className="eyebrow" data-reveal>Авто в наявності</span>
+        <h2 className="h2" data-reveal>Авто в дорозі <span className="grad">та по місцю</span></h2>
+        <p className="lead" data-reveal>Обирайте, як вам зручніше: забронювати авто, яке вже їде до України, або подивитися готове авто в Києві. Натисніть на мапі або на кнопці — бот одразу передасть ваш запит менеджеру.</p>
+        <div className="live-map" data-reveal>
+          <svg viewBox="0 0 800 320" role="img" aria-label="Мапа: аукціон у США, авто в дорозі, авто по місцю в Києві">
+            <defs><linearGradient id="routeGrad" x1="0" x2="1"><stop offset="0" stopColor="#b44848" /><stop offset=".6" stopColor="#e26a6a" /><stop offset="1" stopColor="#ffc4c4" /></linearGradient></defs>
+            <path d="M70 230 C 200 80, 330 70, 410 130 S 600 250, 680 190" className="route-base" />
+            <path d="M70 230 C 200 80, 330 70, 410 130 S 600 250, 680 190" className="route-live" />
+            <g className="node-static"><circle cx="70" cy="230" r="9" /><text x="70" y="262" textAnchor="middle">США · аукціон</text></g>
+            {pin(410, 130, 'Авто в дорозі', 'їде до України', botLink('transit'), 'transit')}
+            {pin(680, 190, 'Авто по місцю', 'Київ · готове авто', botLink('onsite'), 'onsite')}
+          </svg>
+        </div>
+        <div className="live-grid" data-stagger>
+          <div className="live-card">
+            <i>🚢</i>
+            <h3>Авто в дорозі</h3>
+            <p>Авто, які вже викуплені й їдуть до України. Підберемо варіант під ваш бюджет і скажемо, коли він буде в Києві. Так ви економите час і бачите авто ще до розмитнення.</p>
+            <a className="btn btn-fire" href={botLink('transit')} target="_blank" rel="noopener noreferrer">Шукаю авто в дорозі →</a>
+          </div>
+          <div className="live-card">
+            <i>📍</i>
+            <h3>Авто по місцю</h3>
+            <p>Готові авто, які вже в Україні: можна приїхати на огляд, оцінити стан наживо й забрати швидше, без очікування доставки.</p>
+            <a className="btn btn-fire" href={botLink('onsite')} target="_blank" rel="noopener noreferrer">Цікавить авто по місцю →</a>
+          </div>
+        </div>
+        <p className="note">Кнопки відкривають Telegram-бота Urban Auto: ваш вибір одразу отримує менеджер і зв’язується з вами.</p>
       </div>
     </section>
   );

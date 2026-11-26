@@ -536,3 +536,26 @@ a.c-card:hover { border-color: rgba(180,72,72,.5); transform: translateY(-4px); 
 .sold-info dl div { display: flex; justify-content: space-between; gap: 14px; padding: 9px 0; border-bottom: 1px dashed var(--line-strong); font-size: 14.5px; }
 .sold-info dt { color: var(--muted); } .sold-info dd { text-align: right; font-weight: 600; word-break: break-all; }
 @media (max-width: 860px) { .teaser { grid-template-columns: 1fr; gap: 24px; } .sold-card { grid-template-columns: 1fr; } .sold-photo { min-height: 240px; } .vin-form { max-width: none; } }
+
+/* Авто в дорозі / по місцю */
+.live-map { margin-top: 44px; border-radius: 28px; border: 1px solid rgba(255,255,255,.1); background: linear-gradient(170deg, #1b1f2b, #101218); overflow: hidden; position: relative; box-shadow: var(--shadow); }
+.live-map::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px); background-size: 44px 44px; mask-image: radial-gradient(circle at 50% 50%, #000, transparent 80%); }
+.live-map svg { position: relative; width: 100%; height: auto; }
+.route-base { fill: none; stroke: rgba(255,255,255,.18); stroke-width: 3; stroke-dasharray: 3 10; stroke-linecap: round; }
+.route-live { fill: none; stroke: url(#routeGrad); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 900; stroke-dashoffset: 0; filter: drop-shadow(0 0 8px rgba(217,91,91,.7)); }
+.node-static circle { fill: #12141b; stroke: rgba(255,255,255,.5); stroke-width: 3; }
+.node-static text, .pin-sub { fill: #aeb3c2; font-size: 13px; letter-spacing: .04em; font-family: var(--font-body); }
+.pin { cursor: pointer; }
+.pin-dot { fill: var(--red-l); stroke: #fff; stroke-width: 3; transition: r .3s; }
+.pin-pulse { fill: rgba(217,91,91,.28); transform-box: fill-box; transform-origin: center; animation: pinpulse 2.2s ease-out infinite; }
+.pin-label { fill: #fff; font-size: 18px; font-weight: 800; font-family: var(--font-display); }
+.pin:hover .pin-dot { r: 14; }
+.pin:hover .pin-label { fill: #ffb9b9; }
+@keyframes pinpulse { 0% { transform: scale(.5); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+.live-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; margin-top: 26px; }
+.live-card { padding: 30px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-sm); display: grid; gap: 10px; align-content: start; }
+.live-card i { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--fire-soft); border: 1px solid rgba(180,72,72,.28); font-style: normal; font-size: 26px; }
+.live-card h3 { font-family: var(--font-display); font-weight: 700; font-size: 22px; }
+.live-card p { color: var(--muted); font-size: 15.5px; margin-bottom: 8px; }
+.live-card .btn { justify-self: start; }
+@media (max-width: 720px) { .live-grid { grid-template-columns: 1fr; } .pin-label { font-size: 22px; } .node-static text, .pin-sub { font-size: 16px; } }

@@ -6,7 +6,7 @@ import Catalog from './Catalog';
 import Order from './Order';
 import Calculator from './Calculator';
 import Process from './Process';
-import { Repair, Cases, WhyUs } from './Extras';
+import { Repair, Cases, WhyUs, LiveCars } from './Extras';
 import { Marquee, Stats, SoldTeaser, Auctions, Reviews, Contacts, Footer } from './Sections';
 
 export default function Site() {
@@ -24,6 +24,7 @@ export default function Site() {
         <Marquee />
         <Stats />
         <Catalog />
+        <LiveCars />
         <SoldTeaser />
         <Order />
         <Calculator />
