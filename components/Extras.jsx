@@ -114,7 +114,7 @@ export function IntentButton({ kind, st, open, submit }) {
     return (
       <form className="intent-form" onSubmit={(e) => { e.preventDefault(); const d = new FormData(e.currentTarget); submit(kind, String(d.get('name')).trim(), String(d.get('phone')).trim()); }}>
         <input name="name" required placeholder="Ваше ім’я" autoComplete="name" />
-        <input name="phone" required type="tel" placeholder="+380XXXXXXXXX" autoComplete="tel" pattern="\+?[0-9\s\-()]{10,16}" title="Вкажіть номер у форматі +380XXXXXXXXX" />
+        <input name="phone" required type="tel" placeholder="+380XXXXXXXXX" autoComplete="tel" pattern="\+?[0-9\s\-\(\)]{10,18}" title="Вкажіть номер у форматі +380XXXXXXXXX" />
         <button className="btn btn-fire" type="submit" disabled={s === 'sending'}>{s === 'sending' ? 'Надсилаємо…' : 'Надіслати менеджеру'}</button>
       </form>
     );

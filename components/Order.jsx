@@ -52,7 +52,7 @@ export default function Order() {
         <form className="panel" onSubmit={submit} data-reveal-right>
           <div className="form-grid">
             <div className="input"><label>Ім’я</label><input name="name" required placeholder="Ваше ім’я" /></div>
-            <div className="input"><label>Телефон</label><input name="phone" required type="tel" placeholder="+380XXXXXXXXX" pattern="\+?[0-9\s\-()]{10,16}" /></div>
+            <div className="input"><label>Телефон</label><input name="phone" required type="tel" placeholder="+380XXXXXXXXX" pattern="\+?[0-9\s\-\(\)]{10,18}" /></div>
             <div className="input"><label>Марка</label><select name="make"><option value="">Будь-яка</option>{MAKES.map((m) => <option key={m}>{m}</option>)}</select></div>
             <div className="input"><label>Модель</label><input name="model" placeholder="напр. RAV4" /></div>
             <div className="input"><label>Країна</label><select name="country"><option>США</option><option>Канада</option><option>Європа</option></select></div>
