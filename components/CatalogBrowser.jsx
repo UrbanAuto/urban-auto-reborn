@@ -2,7 +2,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { COUNTRIES, MAKES } from '@/lib/data';
 import { useCars } from '@/lib/useCars';
-import { splitMakeQuery } from '@/lib/search';
+import { splitMakeQuery, detectIntent } from '@/lib/search';
+import { IntentPanel } from './Extras';
 import { SOLD_API } from '@/lib/sold';
 import CarCard from './CarCard';
 import LotModal from './LotModal';
@@ -39,7 +40,8 @@ export default function CatalogBrowser() {
     const p = new URLSearchParams({ per_page: String(PAGE) });
     if (filters.auction === 'copart' || filters.auction === 'iaai') p.set('platform', filters.auction);
     // Серверний пошук шукає цілі слова («alfa» нічого не знайде, а «alfa romeo» — знайде), тому початок запиту, що схожий на марку, шлемо як фільтр марки
-    const split = filters.make ? { make: '', rest: filters.q } : splitMakeQuery(filters.q);
+    const q0 = detectIntent(filters.q).rest;
+    const split = filters.make ? { make: '', rest: q0 } : splitMakeQuery(q0);
     const make = filters.make || split.make;
     if (make) p.set('make', make.toUpperCase());
     if (filters.year) p.set('year_from', filters.year);
@@ -63,7 +65,7 @@ export default function CatalogBrowser() {
   // ---------- LOCAL: пошук у cars.json ----------
   const all = useMemo(() => {
     if (LIVE) return [];
-    const tokens = f.q.toLowerCase().split(/\s+/).filter(Boolean);
+    const tokens = detectIntent(f.q).rest.toLowerCase().split(/\s+/).filter(Boolean);
     const list = local.cars.filter((c) => {
       const a = c.auction.toLowerCase();
       const hay = `${c.make} ${c.model} ${c.year} ${c.lot} ${c.id} ${c.location || ''} ${c.damage || ''} ${c.auction} ${c.body || ''}`.toLowerCase();
@@ -83,6 +85,7 @@ export default function CatalogBrowser() {
   const reset = () => { setF(EMPTY); setQDraft(''); };
   const dirty = JSON.stringify({ ...f, sort: 'soon' }) !== JSON.stringify(EMPTY);
   const submit = (e) => { e.preventDefault(); set('q', qDraft.trim()); };
+  const intent = detectIntent(f.q);
   const sorts = LIVE ? LIVE_SORTS : SORTS;
   const demo = !LIVE && local.source === 'demo';
   const updated = LIVE ? live.updated : local.updated;
@@ -106,6 +109,7 @@ export default function CatalogBrowser() {
         <select value={f.sort} onChange={(e) => set('sort', e.target.value)} aria-label="Сортування">{sorts.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
         {dirty && <button className="btn btn-sm" onClick={reset}>Скинути</button>}
       </div>
+      {intent.kinds.length > 0 && <IntentPanel kinds={intent.kinds} source="Пошук у каталозі" />}
       <div className="live-bar">
         <span className={`dot ${demo ? 'demo' : ''}`} />
         {demo ? 'Демо-дані' : LIVE ? 'Весь каталог Copart та IAAI' : 'Дані аукціонів'}

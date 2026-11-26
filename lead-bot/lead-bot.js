@@ -65,7 +65,7 @@ const who = (u) => `<a href="tg://user?id=${u.id}">${esc([u.first_name, u.last_n
 async function toGroup(env, text) {
   const payload = { chat_id: env.TELEGRAM_CHAT_ID, text, parse_mode: 'HTML', disable_web_page_preview: true };
   if (env.TELEGRAM_THREAD_ID) payload.message_thread_id = Number(env.TELEGRAM_THREAD_ID);
-  await tg(env, 'sendMessage', payload);
+  return tg(env, 'sendMessage', payload);
 }
 
 // Бот не веде діалог: лише записує в групу, що клієнт натиснув (/start transit | onsite), і коротко підтверджує
@@ -94,6 +94,17 @@ export default {
       // Підключає вебхук бота до цього Worker (безпечно: адреса вебхука завжди ця сама)
       const r = await tg(env, 'setWebhook', { url: `${url.origin}/webhook`, secret_token: await hookSecret(env), allowed_updates: ['message'], drop_pending_updates: true });
       return json(await r.json().catch(() => ({})), r.ok ? 200 : 502, {});
+    }
+    if (req.method === 'POST' && url.pathname === '/click') {
+      // Клієнт натиснув на сайті «Авто в дорозі» / «Авто по місцю» → одразу повідомлення в групу
+      if (!c.ok) return json({ error: 'forbidden' }, 403, c.headers);
+      if (!token(env) || !env.TELEGRAM_CHAT_ID) return json({ error: 'not_configured' }, 500, c.headers);
+      let b; try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400, c.headers); }
+      const intent = INTENTS[b.intent];
+      if (!intent) return json({ error: 'invalid' }, 422, c.headers);
+      const time = new Date().toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      const r = await toGroup(env, `🔔 <b>Клієнт натиснув на сайті:</b> ${intent}\n📍 Розділ: ${esc(clip(b.source, 40) || 'сайт')}\n\n<i>Сайт Urban Auto · ${time}</i>`);
+      return r.ok ? json({ ok: true }, 200, c.headers) : json({ error: 'telegram_failed' }, 502, c.headers);
     }
     if (req.method !== 'POST' || url.pathname !== '/lead') return json({ error: 'not_found' }, 404, c.headers);
     if (!c.ok) return json({ error: 'forbidden' }, 403, c.headers);

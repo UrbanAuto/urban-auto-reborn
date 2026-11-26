@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { botLink } from '@/lib/contact';
+import { contactLink } from '@/lib/contact';
+import { sendIntent, INTENTS } from '@/lib/lead';
 import { SERVICES, BEFORE_AFTER, CASES, CASE_FILTERS, USP } from '@/lib/data';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -93,29 +94,73 @@ export function WhyUs() {
   );
 }
 
+/** Натискання «в дорозі» / «по місцю»: повідомлення в групу; без Worker відкриваємо Telegram менеджера. */
+export function useIntent(source) {
+  const [st, setSt] = useState({});
+  const pick = async (kind) => {
+    if (st[kind] === 'sending' || st[kind] === 'done') return;
+    setSt((p) => ({ ...p, [kind]: 'sending' }));
+    const ok = await sendIntent(kind, source);
+    if (!ok) { const l = contactLink(INTENTS[kind].ask); window.open(l.href, '_blank', 'noopener'); }
+    setSt((p) => ({ ...p, [kind]: ok ? 'done' : 'idle' }));
+  };
+  return [st, pick];
+}
+
+const Done = () => <p className="intent-done">✓ Запит передано менеджеру — він зв’яжеться з вами. Щоб швидше, залиште заявку нижче або напишіть @IvanUrbanAuto.</p>;
+
+export function IntentButton({ kind, st, pick }) {
+  const s = st[kind];
+  return (
+    <>
+      <button className="btn btn-fire" type="button" disabled={s === 'sending' || s === 'done'} onClick={() => pick(kind)}>
+        {s === 'done' ? '✓ Передано менеджеру' : s === 'sending' ? 'Надсилаємо…' : `${INTENTS[kind].button} →`}
+      </button>
+      {s === 'done' && <Done />}
+    </>
+  );
+}
+
+/** Панель, що з’являється в пошуку каталогу, коли клієнт пише «по місцю» чи «в дорозі». */
+export function IntentPanel({ kinds, source }) {
+  const [st, pick] = useIntent(source);
+  const text = { transit: 'Авто, які вже викуплені й їдуть до України.', onsite: 'Готові авто, які вже в Україні: можна оглянути наживо.' };
+  return (
+    <div className="intent-panel">
+      {kinds.map((k) => (
+        <div className="intent-item" key={k}>
+          <div><b>{INTENTS[k].title}</b><span>{text[k]}</span></div>
+          <IntentButton kind={k} st={st} pick={pick} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function LiveCars() {
-  const pin = (x, y, label, sub, href, cls) => (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={`pin ${cls}`}>
+  const [st, pick] = useIntent('Головна · мапа');
+  const pin = (x, y, label, sub, kind) => (
+    <g className={`pin ${kind}`} role="button" tabIndex={0} aria-label={label} onClick={() => pick(kind)} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && pick(kind)}>
       <circle cx={x} cy={y} r="22" className="pin-pulse" />
       <circle cx={x} cy={y} r="11" className="pin-dot" />
       <text x={x} y={y - 34} textAnchor="middle" className="pin-label">{label}</text>
-      <text x={x} y={y + 40} textAnchor="middle" className="pin-sub">{sub}</text>
-    </a>
+      <text x={x} y={y + 40} textAnchor="middle" className="pin-sub">{st[kind] === 'done' ? '✓ передано менеджеру' : sub}</text>
+    </g>
   );
   return (
     <section className="section" id="live">
       <div className="container">
         <span className="eyebrow" data-reveal>Авто в наявності</span>
         <h2 className="h2" data-reveal>Авто в дорозі <span className="grad">та по місцю</span></h2>
-        <p className="lead" data-reveal>Обирайте, як вам зручніше: забронювати авто, яке вже їде до України, або подивитися готове авто в Києві. Натисніть на мапі або на кнопці — бот одразу передасть ваш запит менеджеру.</p>
+        <p className="lead" data-reveal>Обирайте, як вам зручніше: забронювати авто, яке вже їде до України, або подивитися готове авто в Києві. Натисніть на мапі або на кнопці — менеджер одразу отримає ваш запит.</p>
         <div className="live-map" data-reveal>
           <svg viewBox="0 0 800 320" role="img" aria-label="Мапа: аукціон у США, авто в дорозі, авто по місцю в Києві">
             <defs><linearGradient id="routeGrad" x1="0" x2="1"><stop offset="0" stopColor="#b44848" /><stop offset=".6" stopColor="#e26a6a" /><stop offset="1" stopColor="#ffc4c4" /></linearGradient></defs>
             <path d="M70 230 C 200 80, 330 70, 410 130 S 600 250, 680 190" className="route-base" />
             <path d="M70 230 C 200 80, 330 70, 410 130 S 600 250, 680 190" className="route-live" />
             <g className="node-static"><circle cx="70" cy="230" r="9" /><text x="70" y="262" textAnchor="middle">США · аукціон</text></g>
-            {pin(410, 130, 'Авто в дорозі', 'їде до України', botLink('transit'), 'transit')}
-            {pin(680, 190, 'Авто по місцю', 'Київ · готове авто', botLink('onsite'), 'onsite')}
+            {pin(410, 130, 'Авто в дорозі', 'їде до України', 'transit')}
+            {pin(680, 190, 'Авто по місцю', 'Київ · готове авто', 'onsite')}
           </svg>
         </div>
         <div className="live-grid" data-stagger>
@@ -123,16 +168,15 @@ export function LiveCars() {
             <i>🚢</i>
             <h3>Авто в дорозі</h3>
             <p>Авто, які вже викуплені й їдуть до України. Підберемо варіант під ваш бюджет і скажемо, коли він буде в Києві. Так ви економите час і бачите авто ще до розмитнення.</p>
-            <a className="btn btn-fire" href={botLink('transit')} target="_blank" rel="noopener noreferrer">Шукаю авто в дорозі →</a>
+            <IntentButton kind="transit" st={st} pick={pick} />
           </div>
           <div className="live-card">
             <i>📍</i>
             <h3>Авто по місцю</h3>
             <p>Готові авто, які вже в Україні: можна приїхати на огляд, оцінити стан наживо й забрати швидше, без очікування доставки.</p>
-            <a className="btn btn-fire" href={botLink('onsite')} target="_blank" rel="noopener noreferrer">Цікавить авто по місцю →</a>
+            <IntentButton kind="onsite" st={st} pick={pick} />
           </div>
         </div>
-        <p className="note">Кнопки відкривають Telegram-бота Urban Auto: ваш вибір одразу отримує менеджер і зв’язується з вами.</p>
       </div>
     </section>
   );

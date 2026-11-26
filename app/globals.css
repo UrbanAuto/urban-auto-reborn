@@ -545,7 +545,7 @@ a.c-card:hover { border-color: rgba(180,72,72,.5); transform: translateY(-4px); 
 .route-live { fill: none; stroke: url(#routeGrad); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 900; stroke-dashoffset: 0; filter: drop-shadow(0 0 8px rgba(217,91,91,.7)); }
 .node-static circle { fill: #12141b; stroke: rgba(255,255,255,.5); stroke-width: 3; }
 .node-static text, .pin-sub { fill: #aeb3c2; font-size: 13px; letter-spacing: .04em; font-family: var(--font-body); }
-.pin { cursor: pointer; }
+.pin { cursor: pointer; outline: none; }
 .pin-dot { fill: var(--red-l); stroke: #fff; stroke-width: 3; transition: r .3s; }
 .pin-pulse { fill: rgba(217,91,91,.28); transform-box: fill-box; transform-origin: center; animation: pinpulse 2.2s ease-out infinite; }
 .pin-label { fill: #fff; font-size: 18px; font-weight: 800; font-family: var(--font-display); }
@@ -559,3 +559,11 @@ a.c-card:hover { border-color: rgba(180,72,72,.5); transform: translateY(-4px); 
 .live-card p { color: var(--muted); font-size: 15.5px; margin-bottom: 8px; }
 .live-card .btn { justify-self: start; }
 @media (max-width: 720px) { .live-grid { grid-template-columns: 1fr; } .pin-label { font-size: 22px; } .node-static text, .pin-sub { font-size: 16px; } }
+
+.intent-done { color: #1f7a4d; font-weight: 600; font-size: 14px; }
+.live-card .btn:disabled { opacity: .85; cursor: default; transform: none; }
+.intent-panel { display: grid; gap: 12px; margin: 0 0 22px; }
+.intent-item { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 18px 22px; border-radius: 18px; background: var(--card); border: 1px solid rgba(180,72,72,.4); box-shadow: var(--shadow-sm); }
+.intent-item b { display: block; font-family: var(--font-display); font-size: 18px; }
+.intent-item span { color: var(--muted); font-size: 14px; }
+.intent-item .intent-done { flex-basis: 100%; }
