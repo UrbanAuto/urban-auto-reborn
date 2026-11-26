@@ -94,43 +94,44 @@ export function WhyUs() {
   );
 }
 
-/** Натискання «в дорозі» / «по місцю»: повідомлення в групу; без Worker відкриваємо Telegram менеджера. */
+/** «В дорозі» / «по місцю»: кнопка відкриває мініформу (ім’я + телефон) → повідомлення в Telegram-групу. */
 export function useIntent(source) {
-  const [st, setSt] = useState({});
-  const pick = async (kind) => {
-    if (st[kind] === 'sending' || st[kind] === 'done') return;
+  const [st, setSt] = useState({}); // undefined | form | sending | done
+  const open = (kind) => setSt((p) => (p[kind] === 'done' ? p : { ...p, [kind]: 'form' }));
+  const submit = async (kind, name, phone) => {
     setSt((p) => ({ ...p, [kind]: 'sending' }));
-    const ok = await sendIntent(kind, source);
-    if (!ok) { const l = contactLink(INTENTS[kind].ask); window.open(l.href, '_blank', 'noopener'); }
-    setSt((p) => ({ ...p, [kind]: ok ? 'done' : 'idle' }));
+    const ok = await sendIntent(kind, source, name, phone);
+    if (!ok) { const l = contactLink(`${INTENTS[kind].ask}\nІм’я: ${name}\nТелефон: ${phone}`); window.open(l.href, '_blank', 'noopener'); }
+    setSt((p) => ({ ...p, [kind]: ok ? 'done' : 'form' }));
   };
-  return [st, pick];
+  return [st, open, submit];
 }
 
-const Done = () => <p className="intent-done">✓ Запит передано менеджеру — він зв’яжеться з вами. Щоб швидше, залиште заявку нижче або напишіть @IvanUrbanAuto.</p>;
-
-export function IntentButton({ kind, st, pick }) {
+export function IntentButton({ kind, st, open, submit }) {
   const s = st[kind];
-  return (
-    <>
-      <button className="btn btn-fire" type="button" disabled={s === 'sending' || s === 'done'} onClick={() => pick(kind)}>
-        {s === 'done' ? '✓ Передано менеджеру' : s === 'sending' ? 'Надсилаємо…' : `${INTENTS[kind].button} →`}
-      </button>
-      {s === 'done' && <Done />}
-    </>
-  );
+  if (s === 'done') return <p className="intent-done">✓ Запит передано менеджеру — він зателефонує вам найближчим часом.</p>;
+  if (s === 'form' || s === 'sending') {
+    return (
+      <form className="intent-form" onSubmit={(e) => { e.preventDefault(); const d = new FormData(e.currentTarget); submit(kind, String(d.get('name')).trim(), String(d.get('phone')).trim()); }}>
+        <input name="name" required placeholder="Ваше ім’я" autoComplete="name" />
+        <input name="phone" required type="tel" placeholder="+380XXXXXXXXX" autoComplete="tel" pattern="\+?[0-9\s\-()]{10,16}" title="Вкажіть номер у форматі +380XXXXXXXXX" />
+        <button className="btn btn-fire" type="submit" disabled={s === 'sending'}>{s === 'sending' ? 'Надсилаємо…' : 'Надіслати менеджеру'}</button>
+      </form>
+    );
+  }
+  return <button className="btn btn-fire" type="button" onClick={() => open(kind)}>{INTENTS[kind].button} →</button>;
 }
 
 /** Панель, що з’являється в пошуку каталогу, коли клієнт пише «по місцю» чи «в дорозі». */
 export function IntentPanel({ kinds, source }) {
-  const [st, pick] = useIntent(source);
+  const [st, open, submit] = useIntent(source);
   const text = { transit: 'Авто, які вже викуплені й їдуть до України.', onsite: 'Готові авто, які вже в Україні: можна оглянути наживо.' };
   return (
     <div className="intent-panel">
       {kinds.map((k) => (
         <div className="intent-item" key={k}>
           <div><b>{INTENTS[k].title}</b><span>{text[k]}</span></div>
-          <IntentButton kind={k} st={st} pick={pick} />
+          <IntentButton kind={k} st={st} open={open} submit={submit} />
         </div>
       ))}
     </div>
@@ -138,7 +139,8 @@ export function IntentPanel({ kinds, source }) {
 }
 
 export function LiveCars() {
-  const [st, pick] = useIntent('Головна · мапа');
+  const [st, open, submit] = useIntent('Головна · мапа');
+  const pick = (kind) => { open(kind); document.getElementById('live-cards')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
   const pin = (x, y, label, sub, kind) => (
     <g className={`pin ${kind}`} role="button" tabIndex={0} aria-label={label} onClick={() => pick(kind)} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && pick(kind)}>
       <circle cx={x} cy={y} r="22" className="pin-pulse" />
@@ -163,18 +165,18 @@ export function LiveCars() {
             {pin(680, 190, 'Авто по місцю', 'Київ · готове авто', 'onsite')}
           </svg>
         </div>
-        <div className="live-grid" data-stagger>
+        <div className="live-grid" id="live-cards" data-stagger>
           <div className="live-card">
             <i>🚢</i>
             <h3>Авто в дорозі</h3>
             <p>Авто, які вже викуплені й їдуть до України. Підберемо варіант під ваш бюджет і скажемо, коли він буде в Києві. Так ви економите час і бачите авто ще до розмитнення.</p>
-            <IntentButton kind="transit" st={st} pick={pick} />
+            <IntentButton kind="transit" st={st} open={open} submit={submit} />
           </div>
           <div className="live-card">
             <i>📍</i>
             <h3>Авто по місцю</h3>
             <p>Готові авто, які вже в Україні: можна приїхати на огляд, оцінити стан наживо й забрати швидше, без очікування доставки.</p>
-            <IntentButton kind="onsite" st={st} pick={pick} />
+            <IntentButton kind="onsite" st={st} open={open} submit={submit} />
           </div>
         </div>
       </div>

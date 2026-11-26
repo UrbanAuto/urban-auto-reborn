@@ -101,9 +101,11 @@ export default {
       if (!token(env) || !env.TELEGRAM_CHAT_ID) return json({ error: 'not_configured' }, 500, c.headers);
       let b; try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400, c.headers); }
       const intent = INTENTS[b.intent];
+      const name = clip(b.name, 80), phone = clip(b.phone, 24);
       if (!intent) return json({ error: 'invalid' }, 422, c.headers);
+      if (!name || !/^\+?[0-9\s\-()]{10,18}$/.test(phone)) return json({ error: 'invalid', message: 'Вкажіть ім’я та коректний телефон.' }, 422, c.headers);
       const time = new Date().toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-      const r = await toGroup(env, `🔔 <b>Клієнт натиснув на сайті:</b> ${intent}\n📍 Розділ: ${esc(clip(b.source, 40) || 'сайт')}\n\n<i>Сайт Urban Auto · ${time}</i>`);
+      const r = await toGroup(env, `🔔 <b>Клієнт натиснув на сайті:</b> ${intent}\n\n👤 Ім’я: <b>${esc(name)}</b>\n📱 Телефон: <b>${esc(phone)}</b>\n📍 Розділ: ${esc(clip(b.source, 40) || 'сайт')}\n\n<i>Сайт Urban Auto · ${time}</i>`);
       return r.ok ? json({ ok: true }, 200, c.headers) : json({ error: 'telegram_failed' }, 502, c.headers);
     }
     if (req.method !== 'POST' || url.pathname !== '/lead') return json({ error: 'not_found' }, 404, c.headers);

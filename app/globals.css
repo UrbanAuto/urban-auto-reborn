@@ -567,3 +567,9 @@ a.c-card:hover { border-color: rgba(180,72,72,.5); transform: translateY(-4px); 
 .intent-item b { display: block; font-family: var(--font-display); font-size: 18px; }
 .intent-item span { color: var(--muted); font-size: 14px; }
 .intent-item .intent-done { flex-basis: 100%; }
+.intent-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.intent-form input { flex: 1 1 160px; min-width: 0; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 13px 16px; outline: 0; transition: border-color .3s, box-shadow .3s; }
+.intent-form input:focus { border-color: rgba(180,72,72,.7); background: #fff; box-shadow: 0 0 0 4px rgba(180,72,72,.14); }
+.intent-form .btn { flex: 1 1 100%; }
+.intent-item .intent-form { flex: 1 1 360px; max-width: 560px; }
+.intent-item .intent-form .btn { flex: 0 0 auto; }
