@@ -4,7 +4,7 @@ import { COUNTRIES, MAKES } from '@/lib/data';
 import { useCars } from '@/lib/useCars';
 import { splitMakeQuery, detectIntent } from '@/lib/search';
 import { IntentPanel } from './Extras';
-import { SOLD_API } from '@/lib/sold';
+import { SOLD_API, searchSold, lotToCar } from '@/lib/sold';
 import CarCard from './CarCard';
 import LotModal from './LotModal';
 
@@ -31,6 +31,8 @@ export default function CatalogBrowser() {
     const p = new URLSearchParams(window.location.search);
     const init = { ...EMPTY, q: p.get('q') || '', make: p.get('make') || '', country: p.get('country') || 'all', year: p.get('year') || '', budget: p.get('budget') || '' };
     setF(init); setQDraft(init.q);
+    const lotQ = p.get('lot'); // посилання на конкретний лот
+    if (lotQ) searchSold(lotQ).then((d) => setOpen(lotToCar(d))).catch(() => {});
   }, []);
 
   // ---------- LIVE: запити до сервера ----------

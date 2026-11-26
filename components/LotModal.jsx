@@ -19,6 +19,22 @@ export default function LotModal({ car, onClose, priceLabel = 'Поточна с
 
   const go = useCallback((d) => { if (!imgs.length) return; setLoaded(false); setI((v) => (v + d + imgs.length) % imgs.length); }, [imgs.length]);
 
+  // Адреса лота: ?lot=НОМЕР (можна надіслати клієнту), а «Назад» на телефоні закриває лот
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+  useEffect(() => {
+    if (!car.lot) return undefined;
+    const prev = window.location.href;
+    const url = new URL(prev); url.searchParams.set('lot', car.lot);
+    window.history.pushState({ lotModal: true }, '', url.pathname + url.search + url.hash);
+    const pop = () => closeRef.current();
+    window.addEventListener('popstate', pop);
+    return () => {
+      window.removeEventListener('popstate', pop);
+      if (window.history.state?.lotModal) window.history.back();
+    };
+  }, [car.lot]);
+
   useEffect(() => {
     window.__lenis?.stop();
     document.documentElement.style.overflow = 'hidden';
