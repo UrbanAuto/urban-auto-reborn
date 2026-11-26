@@ -4,4 +4,5 @@ compatibility_date = "2024-11-01"
 
 [vars]
 ALLOWED_ORIGINS = "https://urbanauto.github.io"
-# TELEGRAM_CHAT_ID = "-100XXXXXXXXXX"   # додайте id вашої групи (див. README)
+# Група «Urban Auto — заявки» (бот @UrbanAutoLeads_bot уже в групі)
+TELEGRAM_CHAT_ID = "-5599343646"

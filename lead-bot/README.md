@@ -3,11 +3,11 @@
 Cloudflare Worker приймає заявку з форми «Підбір авто» і надсилає її ботом у Telegram-групу.
 Токен бота лежить лише в секретах Cloudflare, у код сайту він не потрапляє.
 
-## 1. Створіть бота й групу
-1. У Telegram відкрийте **@BotFather** → `/newbot` → вкажіть назву й логін → отримаєте **токен** (нікому його не показуйте).
-2. Створіть групу для заявок і додайте туди бота (як учасника; для груп із темами — дайте право писати).
-3. Дізнайтеся id групи: напишіть щось у групі, відкрийте
-   `https://api.telegram.org/bot<ТОКЕН>/getUpdates` — у відповіді знайдіть `"chat":{"id":-100…}`. Це **TELEGRAM_CHAT_ID**.
+## 1. Бот і група (вже створені)
+- Бот: **@UrbanAutoLeads_bot** («Urban Auto Заявки»). Токен лежить у чаті з @BotFather (команда `/token`).
+- Група: **«Urban Auto — заявки»**, id `-5599343646` (уже вписаний у `wrangler.toml`). Бот у ній є.
+  Додайте в групу менеджерів. Якщо групу перетворять на супергрупу, її id зміниться на `-100…`:
+  тоді дізнайтеся новий через `https://api.telegram.org/bot<ТОКЕН>/getUpdates` і оновіть `TELEGRAM_CHAT_ID`.
 
 ## 2. Розгорніть Worker
 ```bash
@@ -16,8 +16,7 @@ npx wrangler login
 npx wrangler secret put TELEGRAM_BOT_TOKEN      # вставте токен
 npx wrangler deploy
 ```
-У `wrangler.toml` розкоментуйте й заповніть `TELEGRAM_CHAT_ID` (або додайте змінну в панелі Cloudflare:
-Workers → urban-auto-lead-bot → Settings → Variables). Якщо в групі ввімкнені теми, додайте `TELEGRAM_THREAD_ID`.
+Якщо в групі ввімкнені теми, додайте `TELEGRAM_THREAD_ID`.
 Після `deploy` отримаєте адресу на кшталт `https://urban-auto-lead-bot.<акаунт>.workers.dev`.
 
 ## 3. Підключіть сайт
