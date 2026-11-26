@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import CarSvg from './CarSvg';
 import { goTo } from '@/lib/scroll';
-import { managerLink } from '@/lib/contact';
+import LotRequestModal from './LotRequest';
 
 const fmt = (n) => n.toLocaleString('uk-UA');
 const FLAG = { usa: '🇺🇸', canada: '🇨🇦', europe: '🇪🇺' };
@@ -13,6 +13,7 @@ export default function LotModal({ car, onClose, priceLabel = 'Поточна с
   const imgs = car.images?.length ? car.images : car.image ? [car.image] : [];
   const [i, setI] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [ask, setAsk] = useState(false);
   const stage = useRef(null);
   const touch = useRef(null);
   const thumbs = useRef(null);
@@ -37,7 +38,6 @@ export default function LotModal({ car, onClose, priceLabel = 'Поточна с
   const order = () => { onClose(); setTimeout(() => goTo('order'), 150); };
   const calc = () => { onClose(); setTimeout(() => goTo('calc'), 150); };
 
-  const mgr = managerLink(car);
   const rows = [
     ['Рік', car.year], ['Пробіг', car.km > 0 ? `${fmt(car.km)} км` : null], ['Паливо', car.fuel], ['Двигун', car.engine], ['Кузов', car.body],
     ['Пошкодження', car.damage], ['Локація', car.location], ['Лот №', car.lot], ['Торги', car.saleDate ? new Date(car.saleDate).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }) : null],
@@ -77,13 +77,14 @@ export default function LotModal({ car, onClose, priceLabel = 'Поточна с
           <div className="m-price"><small>{priceLabel}</small><b>${fmt(car.bid)}</b></div>
           <dl>{rows.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
           <div className="m-actions">
-            <a className="btn btn-fire" href={mgr.href} {...(mgr.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>💬 Зв’язатися з менеджером</a>
+            <button className="btn btn-fire" onClick={() => setAsk(true)}>💬 Зв’язатися з менеджером</button>
             <button className="btn" onClick={order}>Замовити цей лот</button>
             <button className="btn" onClick={calc}>Розрахувати «під ключ»</button>
           </div>
           <p className="note">Ставка — поточна на аукціоні, остаточна вартість залежить від торгів.</p>
         </div>
       </div>
+      {ask && <LotRequestModal car={car} source="Вікно лота" onClose={() => setAsk(false)} />}
     </div>,
     document.body,
   );

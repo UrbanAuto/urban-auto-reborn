@@ -1,13 +1,14 @@
 'use client';
+import { useState } from 'react';
 import CarSvg from './CarSvg';
-import { managerLink } from '@/lib/contact';
+import LotRequestModal from './LotRequest';
 
 const fmt = (n) => n.toLocaleString('uk-UA');
 const FLAG = { usa: '🇺🇸', canada: '🇨🇦', europe: '🇪🇺' };
 const dateUa = (d) => new Date(d).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' });
 
 export default function CarCard({ c, onOpen }) {
-  const mgr = managerLink(c);
+  const [ask, setAsk] = useState(false);
   return (
     <article className="car" onClick={() => onOpen(c)} tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onOpen(c)}>
       <div className="car-visual">
@@ -30,10 +31,11 @@ export default function CarCard({ c, onOpen }) {
           <div className="price"><small>поточна ставка</small><b>${fmt(c.bid)}</b></div>
           <div className="car-btns">
             <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); onOpen(c); }}>Детальніше</button>
-            <a className="btn btn-fire btn-sm" href={mgr.href} onClick={(e) => e.stopPropagation()} {...(mgr.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>Менеджер</a>
+            <button className="btn btn-fire btn-sm" onClick={(e) => { e.stopPropagation(); setAsk(true); }}>Менеджер</button>
           </div>
         </div>
       </div>
+      {ask && <LotRequestModal car={c} source="Каталог" onClose={() => setAsk(false)} />}
     </article>
   );
 }

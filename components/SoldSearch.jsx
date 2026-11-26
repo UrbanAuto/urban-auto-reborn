@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { searchSold } from '@/lib/sold';
-import { managerLink } from '@/lib/contact';
+import LotRequestModal from './LotRequest';
 import { goTo } from '@/lib/scroll';
 import LotModal from './LotModal';
 
@@ -14,6 +14,7 @@ export default function SoldSearch({ initial = '' }) {
   const [q, setQ] = useState(initial);
   const [state, setState] = useState({ loading: false, error: null, data: null });
   const [open, setOpen] = useState(false);
+  const [ask, setAsk] = useState(false);
 
   const run = async (value) => {
     setState({ loading: true, error: null, data: null });
@@ -61,11 +62,12 @@ export default function SoldSearch({ initial = '' }) {
             </dl>
             <div className="m-actions">
               <button className="btn btn-fire" onClick={() => goTo('calc')}>Розрахувати «під ключ»</button>
-              <a className="btn" href={managerLink(car).href}>Запитати менеджера</a>
+              <button className="btn" onClick={() => setAsk(true)}>Запитати менеджера</button>
             </div>
           </div>
         </article>
       )}
+      {ask && car && <LotRequestModal car={car} source="Продані лоти" onClose={() => setAsk(false)} />}
       {open && car && <LotModal car={car} priceLabel={d.salePrice != null ? 'Ціна продажу' : 'Остання ставка'} onClose={() => setOpen(false)} />}
     </div>
   );

@@ -3,6 +3,7 @@ import { AUCTIONS, REVIEWS, FAQ, TRUST, SITE } from '@/lib/data';
 import { contactLink } from '@/lib/contact';
 import { goTo } from '@/lib/scroll';
 import { Brand } from './Header';
+import Avatar from './Avatars';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -82,7 +83,7 @@ export function Reviews() {
             <div className="rev" key={r.name}>
               <div className="stars">{'★'.repeat(r.stars)}</div>
               <p>«{r.text}»</p>
-              <div className="who"><div className="avatar">{r.name[0]}</div><div><b>{r.name}</b><span>{r.city}</span></div></div>
+              <div className="who"><Avatar kind={r.avatar} name={r.name} /><div><b>{r.name}</b><span>{r.city}</span></div></div>
             </div>
           ))}
         </div>
