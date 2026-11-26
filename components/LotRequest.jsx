@@ -14,8 +14,8 @@ const KINDS = {
     done: 'Запит передано менеджеру — він зателефонує вам найближчим часом.',
   },
   calc: {
-    icon: '🧮', title: 'Розрахунок «під ключ»', hint: 'Порахуємо повну вартість цього авто в Україні: ставка, доставка, розмитнення, а за потреби ремонт.',
-    submit: 'Отримати розрахунок', budget: true, budgetLabel: 'Орієнтовний бюджет, $ (необов’язково)', repair: true, note: false,
+    icon: '🧮', title: 'Розрахунок «під ключ»', hint: '', plain: true,
+    submit: 'Отримати розрахунок', note: false,
     done: 'Заявку на розрахунок передано. Менеджер надішле вам повну вартість «під ключ».',
   },
   order: {
@@ -70,14 +70,14 @@ export default function LotRequestModal({ car, source, kind = 'manager', onClose
             </>
           ) : (
             <form className="ask-form" onSubmit={submit}>
-              <p className="ask-hint">{cfg.hint}</p>
+              {cfg.hint && <p className="ask-hint">{cfg.hint}</p>}
               <label>Ім’я<input name="name" required placeholder="Ваше ім’я" autoComplete="name" /></label>
               <label>Телефон<input name="phone" required type="tel" placeholder="+380XXXXXXXXX" autoComplete="tel" pattern="\+?[0-9\s\-\(\)]{10,18}" title="Вкажіть номер у форматі +380XXXXXXXXX" /></label>
               {cfg.budget && <label>{cfg.budgetLabel}<input name="budget" type="number" min="0" step="100" inputMode="numeric" placeholder={car.bid ? `напр. ${Math.round((car.bid || 0) * 1.3 / 100) * 100 || 10000}` : 'напр. 12000'} required={!!cfg.budgetReq} /></label>}
               {cfg.repair && <label className="check"><input type="checkbox" name="repair" /> Потрібен ремонт під ключ</label>}
               {cfg.note && <label>{cfg.noteLabel}<textarea name="note" rows="3" placeholder={cfg.notePh} /></label>}
               <button className="btn btn-fire" type="submit" disabled={state === 'sending'}>{state === 'sending' ? 'Надсилаємо…' : cfg.submit}</button>
-              <small className="ask-fine">Натискаючи кнопку, ви погоджуєтесь, що менеджер зателефонує вам щодо цього лота.</small>
+              {!cfg.plain && <small className="ask-fine">Натискаючи кнопку, ви погоджуєтесь, що менеджер зателефонує вам щодо цього лота.</small>}
             </form>
           )}
         </div>
