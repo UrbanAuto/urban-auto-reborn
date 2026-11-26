@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NAV, SITE } from '@/lib/data';
 import { contactLink } from '@/lib/contact';
 import { goTo } from '@/lib/scroll';
@@ -17,11 +17,21 @@ export function Brand({ home = true, onClick }) {
 
 export default function Header({ home = true }) {
   const [open, setOpen] = useState(false);
+  // Меню на телефоні: блокуємо прокрутку сторінки під меню (без підлагувань)
+  useEffect(() => {
+    if (!open) return undefined;
+    window.__lenis?.stop();
+    const prev = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = 'hidden';
+    return () => { window.__lenis?.start(); document.documentElement.style.overflow = prev; };
+  }, [open]);
   const href = (n) => (n.page ? `${BASE}${n.page}` : home ? `#${n.id}` : `${BASE}/#${n.id}`);
   const click = (e, n) => {
     setOpen(false);
     if (n.page || !home) return; // звичайний перехід
-    e.preventDefault(); goTo(n.id);
+    e.preventDefault();
+    window.__lenis?.start(); document.documentElement.style.overflow = ''; // знімаємо блокування перед переходом
+    goTo(n.id);
   };
   const logo = (e) => { if (home) { e.preventDefault(); goTo('top'); } };
   const mgr = contactLink('Доброго дня! Хочу отримати консультацію щодо пригону авто.');
@@ -38,7 +48,7 @@ export default function Header({ home = true }) {
       </header>
       <div className={`mobile-menu ${open ? 'open' : ''}`}>
         {NAV.map((n) => <a key={n.id} className="m-link" href={href(n)} onClick={(e) => click(e, n)}>{n.label}</a>)}
-        <a className="btn btn-fire" href={mgr.href} {...(mgr.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>Написати менеджеру · {SITE.phoneLabel}</a>
+        <a className="btn btn-fire m-cta" href={mgr.href} {...(mgr.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}><span>Написати менеджеру</span><small>{SITE.phoneLabel}</small></a>
       </div>
     </>
   );
