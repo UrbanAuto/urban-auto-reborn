@@ -577,3 +577,5 @@ a.c-card:hover { border-color: rgba(180,72,72,.5); transform: translateY(-4px); 
 .avatar-img svg { display: block; }
 
 .seo-text { display: grid; gap: 16px; color: var(--muted); font-size: 16.5px; }
+
+@media (min-width: 1101px) { .contact-grid { grid-template-columns: repeat(4, 1fr); } }

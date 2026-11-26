@@ -133,8 +133,10 @@ export function Contacts() {
           <a className="c-card" href={`https://t.me/${SITE.telegram}`} target="_blank" rel="noopener noreferrer"><small>Telegram</small><b>@{SITE.telegram}</b></a>
           <a className="c-card" href={`mailto:${SITE.email}`}><small>Email</small><b>{SITE.email}</b></a>
           <div className="c-card"><small>Офіс</small><b>{SITE.address}</b></div>
-          <div className="c-card"><small>Графік роботи</small><b>Пн–Сб 09:00–19:00</b><span>Нд 10:00–16:00</span></div>
+          <div className="c-card"><small>Графік роботи</small><b>Пн–Сб 10:00–19:00</b><span>Неділя — вихідний</span></div>
           <a className="c-card" href={SITE.instagram} target="_blank" rel="noopener noreferrer"><small>Instagram</small><b>@urban_auto_ua</b></a>
+          <a className="c-card" href={SITE.tiktok} target="_blank" rel="noopener noreferrer"><small>TikTok</small><b>@urbanautoua</b></a>
+          <a className="c-card" href={SITE.mapsLink} target="_blank" rel="noopener noreferrer"><small>Google Карти</small><b>Прокласти маршрут</b><span>Відкрити офіс на карті</span></a>
         </div>
         <div className="map" data-reveal>
           <iframe title="Карта офісу Urban Auto" loading="lazy" allowFullScreen src={SITE.mapEmbed} />
@@ -152,6 +154,8 @@ export function Footer() {
         <div className="socials">
           <a href={`https://t.me/${SITE.telegram}`} target="_blank" rel="noopener noreferrer">Telegram</a>
           <a href={SITE.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a href={SITE.tiktok} target="_blank" rel="noopener noreferrer">TikTok</a>
+          <a href={SITE.mapsLink} target="_blank" rel="noopener noreferrer">Google Карти</a>
           <a href={`tel:${SITE.phone}`}>{SITE.phoneLabel}</a>
         </div>
         <span>© {new Date().getFullYear()} Urban Auto · Пригін авто під ключ</span>
