@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { COUNTRIES, MAKES } from '@/lib/data';
 import { useCars } from '@/lib/useCars';
+import { splitMakeQuery } from '@/lib/search';
 import { SOLD_API } from '@/lib/sold';
 import CarCard from './CarCard';
 import LotModal from './LotModal';
@@ -37,10 +38,13 @@ export default function CatalogBrowser() {
     setLive((s) => ({ ...s, loading: true, error: null, ...(cursor ? {} : { items: [], more: false }) }));
     const p = new URLSearchParams({ per_page: String(PAGE) });
     if (filters.auction === 'copart' || filters.auction === 'iaai') p.set('platform', filters.auction);
-    if (filters.make) p.set('make', filters.make.toUpperCase());
+    // Серверний пошук шукає цілі слова («alfa» нічого не знайде, а «alfa romeo» — знайде), тому початок запиту, що схожий на марку, шлемо як фільтр марки
+    const split = filters.make ? { make: '', rest: filters.q } : splitMakeQuery(filters.q);
+    const make = filters.make || split.make;
+    if (make) p.set('make', make.toUpperCase());
     if (filters.year) p.set('year_from', filters.year);
     if (filters.budget) p.set('price_max', filters.budget);
-    if (filters.q) p.set('s', filters.q);
+    if (split.rest) p.set('s', split.rest);
     p.set('sort', filters.sort === 'new' ? 'recently_added' : 'auction_soonest');
     if (cursor) p.set('cursor', cursor);
     try {
@@ -65,7 +69,7 @@ export default function CatalogBrowser() {
       const hay = `${c.make} ${c.model} ${c.year} ${c.lot} ${c.id} ${c.location || ''} ${c.damage || ''} ${c.auction} ${c.body || ''}`.toLowerCase();
       return tokens.every((t) => hay.includes(t)) &&
         (f.auction === 'all' || (f.auction === 'europe' ? EU.includes(a) : a.includes(f.auction))) &&
-        (!f.make || c.make === f.make) && (f.country === 'all' || c.country === f.country) &&
+        (!f.make || c.make.toLowerCase() === f.make.toLowerCase()) && (f.country === 'all' || c.country === f.country) &&
         (!f.year || c.year >= +f.year) && (!f.budget || c.bid <= +f.budget);
     });
     const by = { soon: (a, b) => (a.saleDate || '9999').localeCompare(b.saleDate || '9999'), 'bid-asc': (a, b) => a.bid - b.bid, 'bid-desc': (a, b) => b.bid - a.bid, 'year-desc': (a, b) => b.year - a.year, 'km-asc': (a, b) => (a.km || 1e9) - (b.km || 1e9) }[f.sort] || (() => 0);
@@ -111,7 +115,7 @@ export default function CatalogBrowser() {
       </div>
       {live.error && LIVE && <div className="vin-msg" style={{ marginBottom: 20 }}>{live.error}</div>}
       <div className="cars" key={LIVE ? `${live.items.length ? 'r' : 'e'}${JSON.stringify(f)}` : `${JSON.stringify(f)}${local.cars.length}`} data-stagger>
-        {!live.loading && items.length === 0 && !live.error && <div className="empty">За вашим запитом лотів не знайдено. Спробуйте змінити пошук або залиште заявку на підбір.</div>}
+        {!live.loading && items.length === 0 && !live.error && <div className="empty">За вашим запитом лотів не знайдено. Спробуйте повну назву марки чи моделі (наприклад, «Alfa Romeo Stelvio») або залиште заявку на підбір.</div>}
         {items.map((c) => <CarCard key={c.id} c={c} onOpen={setOpen} />)}
       </div>
       {LIVE && live.loading && <div className="stage-load" style={{ position: 'relative', height: 80 }}><i /></div>}
