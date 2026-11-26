@@ -3,6 +3,6 @@ main = "lead-bot.js"
 compatibility_date = "2024-11-01"
 
 [vars]
-ALLOWED_ORIGINS = "https://urbanauto.github.io"
+ALLOWED_ORIGINS = "https://urbanauto.github.io,https://urban-auto.com.ua,https://www.urban-auto.com.ua"
 # Група «Urban Auto — заявки» (бот @UrbanAutoLeads_bot уже в групі)
 TELEGRAM_CHAT_ID = "-5599343646"
