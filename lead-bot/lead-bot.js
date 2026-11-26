@@ -68,10 +68,14 @@ export default {
 
     const payload = { chat_id: env.TELEGRAM_CHAT_ID, text: formatLead(d), parse_mode: 'HTML', disable_web_page_preview: true };
     if (env.TELEGRAM_THREAD_ID) payload.message_thread_id = Number(env.TELEGRAM_THREAD_ID);
-    const res = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${(String(env.TELEGRAM_BOT_TOKEN).match(/\d+:[A-Za-z0-9_-]+/) || [''])[0]}/sendMessage`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
     });
-    if (!res.ok) return json({ error: 'telegram_failed' }, 502, c.headers);
+    if (!res.ok) {
+      const info = await res.json().catch(() => ({}));
+      console.log('telegram error', res.status, info.description);
+      return json({ error: 'telegram_failed', detail: info.description || res.status, migrate_to_chat_id: info.parameters?.migrate_to_chat_id }, 502, c.headers);
+    }
     return json({ ok: true }, 200, c.headers);
   },
 };
