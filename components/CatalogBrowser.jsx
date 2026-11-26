@@ -85,7 +85,7 @@ export default function CatalogBrowser() {
   const reset = () => { setF(EMPTY); setQDraft(''); };
   const dirty = JSON.stringify({ ...f, sort: 'soon' }) !== JSON.stringify(EMPTY);
   const submit = (e) => { e.preventDefault(); set('q', qDraft.trim()); };
-  const intent = detectIntent(f.q);
+  const intent = detectIntent(LIVE ? qDraft : f.q); // панель «в дорозі / по місцю» з’являється вже під час набору
   const sorts = LIVE ? LIVE_SORTS : SORTS;
   const demo = !LIVE && local.source === 'demo';
   const updated = LIVE ? live.updated : local.updated;
