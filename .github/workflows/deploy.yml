@@ -29,6 +29,7 @@ jobs:
       - run: npm run build
         env:
           NEXT_PUBLIC_SOLD_API: ${{ vars.SOLD_API_URL }}
+          NEXT_PUBLIC_LEAD_API: ${{ vars.LEAD_API_URL }}
       - run: touch out/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:

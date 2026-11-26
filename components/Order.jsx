@@ -3,11 +3,15 @@ import { useState } from 'react';
 import { MAKES, SITE } from '@/lib/data';
 import { contactLink } from '@/lib/contact';
 
+const LEAD_API = (process.env.NEXT_PUBLIC_LEAD_API || '').replace(/\/+$/, '');
+
 export default function Order() {
   const [sent, setSent] = useState(false);
-  const submit = (e) => {
+  const [state, setState] = useState('idle'); // idle | sending | done
+  const submit = async (e) => {
     e.preventDefault();
-    const d = Object.fromEntries(new FormData(e.currentTarget));
+    const form = e.currentTarget;
+    const d = Object.fromEntries(new FormData(form));
     const text = [
       'Заявка на підбір авто (сайт Urban Auto)',
       `Ім’я: ${d.name}`,
@@ -19,6 +23,14 @@ export default function Order() {
       `Ремонт під ключ: ${d.repair ? 'так' : 'ні'}`,
       d.note ? `Побажання: ${d.note}` : null,
     ].filter(Boolean).join('\n');
+    if (LEAD_API) {
+      setState('sending');
+      try {
+        const res = await fetch(`${LEAD_API}/lead`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...d, type: 'order', repair: !!d.repair }) });
+        if (res.ok) { setState('done'); form.reset(); return; }
+      } catch { /* запасний варіант нижче: Telegram менеджера */ }
+      setState('idle');
+    }
     const link = contactLink(text, 'Заявка на підбір авто');
     if (link.external) window.open(link.href, '_blank', 'noopener');
     else window.location.href = link.href;
@@ -48,9 +60,11 @@ export default function Order() {
             <div className="input full"><label>Бюджет «під ключ» до, $</label><input name="budget" type="number" min="0" step="500" placeholder="25000" /></div>
             <div className="input full"><label>Побажання</label><textarea name="note" placeholder="Колір, привід, комплектація…" /></div>
             <label className="check full"><input type="checkbox" name="repair" /> Хочу ремонт під ключ</label>
-            <button className="btn btn-fire full" type="submit">Надіслати заявку менеджеру</button>
+            <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0 }} />
+            <button className="btn btn-fire full" type="submit" disabled={state === 'sending'}>{state === 'sending' ? 'Надсилаємо…' : 'Надіслати заявку менеджеру'}</button>
           </div>
-          {sent && <div className="ok">Відкрито Telegram із готовою заявкою — натисніть «Надіслати». Якщо цього не сталося — зателефонуйте {SITE.phoneLabel} або напишіть на {SITE.email}.</div>}
+          {state === 'done' && <div className="ok">Дякуємо! Заявку отримано — менеджер зв’яжеться з вами протягом 15 хвилин у робочий час.</div>}
+          {sent && state !== 'done' && <div className="ok">Відкрито Telegram із готовою заявкою — натисніть «Надіслати». Якщо цього не сталося — зателефонуйте {SITE.phoneLabel} або напишіть на {SITE.email}.</div>}
         </form>
       </div>
     </section>

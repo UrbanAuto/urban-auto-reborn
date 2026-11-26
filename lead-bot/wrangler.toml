@@ -1,0 +1,7 @@
+name = "urban-auto-lead-bot"
+main = "lead-bot.js"
+compatibility_date = "2024-11-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://urbanauto.github.io"
+# TELEGRAM_CHAT_ID = "-100XXXXXXXXXX"   # додайте id вашої групи (див. README)
