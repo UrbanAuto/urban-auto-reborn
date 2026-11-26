@@ -116,7 +116,6 @@ export function Reviews() {
 }
 
 export function Contacts() {
-  const ask = contactLink('Доброго дня! Хочу записатися на консультацію щодо пригону авто.');
   return (
     <section className="section alt" id="contacts">
       <div className="container">
@@ -125,7 +124,7 @@ export function Contacts() {
           <p>Приїжджайте в офіс або залиште заявку — повернемось з консультацією протягом 15 хвилин у робочий час.</p>
           <div className="hero-cta" style={{ justifyContent: 'center' }}>
             <button className="btn" onClick={() => goTo('order')}>Залишити заявку</button>
-            <a className="btn" href={ask.href} {...(ask.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>Написати в Telegram</a>
+            <a className="btn" href="https://t.me/NikitaAmerika" target="_blank" rel="noopener noreferrer">Написати в Telegram</a>
           </div>
         </div>
         <div className="contact-grid" data-stagger>
